@@ -41,11 +41,10 @@ class EpochBasedRunner(BaseRunner):
         self.model.train()
         self.mode = 'train'
         self.data_loader = data_loader
-        # if isinstance(data_loader, zip):
-        #     list_data_loader = list(data_loader)
-        #     self._max_iters = self._max_epochs * len(list_data_loader)
-        # else:
-        #     self._max_iters = self._max_epochs * len(data_loader)
+        if isinstance(data_loader, zip):
+            self._max_iters = self._max_epochs * kwargs['max_iters']
+        else:
+            self._max_iters = self._max_epochs * len(data_loader)
         self.call_hook('before_train_epoch')
         time.sleep(2)  # Prevent possible deadlock during epoch transition
         for i, data_batch in enumerate(self.data_loader):
@@ -99,11 +98,10 @@ class EpochBasedRunner(BaseRunner):
         for i, flow in enumerate(workflow):
             mode, epochs = flow
             if mode == 'train':
-                # if isinstance(data_loaders[i], zip):
-                #     list_data_loaders = list(data_loaders)
-                #     self._max_iters = self._max_epochs * len(list_data_loaders)
-                # else:
-                #     self._max_iters = self._max_epochs * len(data_loaders[i])
+                if isinstance(data_loaders[i], zip):
+                    self._max_iters = self._max_epochs * kwargs['max_iters']
+                else:
+                    self._max_iters = self._max_epochs * len(data_loaders[i])
                 break
 
         work_dir = self.work_dir if self.work_dir is not None else 'NONE'
