@@ -42,7 +42,8 @@ class EpochBasedRunner(BaseRunner):
         self.mode = 'train'
         self.data_loader = data_loader
         if isinstance(data_loader, zip):
-            self._max_iters = self._max_epochs * kwargs['max_iters']
+            self._epoch_max_iters = kwargs['epoch_max_iters']
+            self._max_iters = self._max_epochs * self._epoch_max_iters
         else:
             self._max_iters = self._max_epochs * len(data_loader)
         self.call_hook('before_train_epoch')
@@ -99,7 +100,7 @@ class EpochBasedRunner(BaseRunner):
             mode, epochs = flow
             if mode == 'train':
                 if isinstance(data_loaders[i], zip):
-                    self._max_iters = self._max_epochs * kwargs['max_iters']
+                    self._max_iters = self._max_epochs * kwargs['epoch_max_iters']
                 else:
                     self._max_iters = self._max_epochs * len(data_loaders[i])
                 break

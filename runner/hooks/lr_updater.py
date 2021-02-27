@@ -112,7 +112,10 @@ class LrUpdaterHook(Hook):
 
     def before_train_epoch(self, runner):
         if self.warmup_iters is None:
-            epoch_len = len(runner.data_loader)
+            if isinstance(runner.data_loader, zip):
+                epoch_len = runner._epoch_max_iters
+            else:
+                epoch_len = len(runner.data_loader)
             self.warmup_iters = self.warmup_epochs * epoch_len
 
         if not self.by_epoch:
