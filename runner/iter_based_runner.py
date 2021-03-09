@@ -18,9 +18,13 @@ from .utils import get_host_info
 
 class IterLoader:
 
-    def __init__(self, dataloader):
+    def __init__(self, dataloader, **kwargs):
         self._dataloader = dataloader
         self.iter_loader = iter(self._dataloader)
+        if 'epoch_max_iters' in kwargs.keys():
+            self._epoch_max_iters = kwargs['epoch_max_iters']
+        else:
+            self._epoch_max_iters = None
         self._epoch = 0
 
     @property
@@ -40,7 +44,10 @@ class IterLoader:
         return data
 
     def __len__(self):
-        return len(self._dataloader)
+        if self._epoch_max_iters is not None:
+            return self._epoch_max_iters
+        else:
+            return len(self._dataloader)
 
 
 @RUNNERS.register_module()
@@ -53,8 +60,6 @@ class IterBasedRunner(BaseRunner):
     def train(self, data_loader, **kwargs):
         self.model.train()
         self.mode = 'train'
-        if isinstance(data_loader, zip):
-            self._epoch_max_iters = kwargs['epoch_max_iters']
         self.data_loader = data_loader
         self._epoch = data_loader.epoch
         data_batch = next(data_loader)
@@ -113,7 +118,7 @@ class IterBasedRunner(BaseRunner):
                          self._max_iters)
         self.call_hook('before_run')
 
-        iter_loaders = [IterLoader(x) for x in data_loaders]
+        iter_loaders = [IterLoader(x, **kwargs) for x in data_loaders]
 
         self.call_hook('before_epoch')
 
