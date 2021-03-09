@@ -53,6 +53,8 @@ class IterBasedRunner(BaseRunner):
     def train(self, data_loader, **kwargs):
         self.model.train()
         self.mode = 'train'
+        if isinstance(data_loader, zip):
+            self._epoch_max_iters = kwargs['epoch_max_iters']
         self.data_loader = data_loader
         self._epoch = data_loader.epoch
         data_batch = next(data_loader)
