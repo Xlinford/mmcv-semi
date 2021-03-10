@@ -36,11 +36,11 @@ class IterLoader:
             data = next(self.iter_loader)
         except StopIteration:
             self._epoch += 1
-            if hasattr(self._dataloader.sampler, 'set_epoch'):
-                self._dataloader.sampler.set_epoch(self._epoch)
+            if self._epoch_max_iters is None:
+                if hasattr(self._dataloader.sampler, 'set_epoch'):
+                    self._dataloader.sampler.set_epoch(self._epoch)
             self.iter_loader = iter(self._dataloader)
             data = next(self.iter_loader)
-
         return data
 
     def __len__(self):
