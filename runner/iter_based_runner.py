@@ -7,6 +7,7 @@ import warnings
 
 import torch
 from torch.optim import Optimizer
+from itertools import cycle
 
 import mmcv
 from .base_runner import BaseRunner
@@ -51,6 +52,31 @@ class IterLoader:
             return self._epoch_max_iters
         else:
             return len(self._dataloader)
+
+
+class SemiIterLoader:
+
+    def __init__(self, dataloader, **kwargs):
+        self._dataloader = dataloader
+        self.iter_loader = iter(zip(cycle(dataloader[0]), dataloader[1]))
+        self._epoch_max_iters = kwargs['epoch_max_iters']
+        self._epoch = 0
+
+    @property
+    def epoch(self):
+        return self._epoch
+
+    def __next__(self):
+        try:
+            data = next(self.iter_loader)
+        except StopIteration:
+            self._epoch += 1
+            self.iter_loader = iter(zip(cycle(self._dataloader[0]), self._dataloader[1]))
+            data = next(self.iter_loader)
+        return data
+
+    def __len__(self):
+        return self._epoch_max_iters
 
 
 @RUNNERS.register_module()
@@ -121,7 +147,10 @@ class IterBasedRunner(BaseRunner):
                          self._max_iters)
         self.call_hook('before_run')
 
-        iter_loaders = [IterLoader(x, **kwargs) for x in data_loaders]
+        if 'epoch_max_iters' in kwargs.keys():
+            iter_loaders = [SemiIterLoader(x, **kwargs) for x in data_loaders[0]]
+        else:
+            iter_loaders = [IterLoader(x, **kwargs) for x in data_loaders]
 
         self.call_hook('before_epoch')
 
