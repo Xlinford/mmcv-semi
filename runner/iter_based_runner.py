@@ -34,6 +34,8 @@ class IterLoader:
     def __next__(self):
         try:
             data = next(self.iter_loader)
+            import ipdb
+            ipdb.set_trace()
         except StopIteration:
             self._epoch += 1
             if self._epoch_max_iters is None:
