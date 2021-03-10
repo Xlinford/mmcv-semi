@@ -148,7 +148,7 @@ class IterBasedRunner(BaseRunner):
         self.call_hook('before_run')
 
         if 'epoch_max_iters' in kwargs.keys():
-            iter_loaders = [SemiIterLoader(x, **kwargs) for x in data_loaders[0]]
+            iter_loaders = [SemiIterLoader(x, **kwargs) for x in data_loaders]
         else:
             iter_loaders = [IterLoader(x, **kwargs) for x in data_loaders]
 
