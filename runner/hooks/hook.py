@@ -61,7 +61,4 @@ class Hook:
         if isinstance(runner.data_loader, zip):
             return runner.inner_iter + 1 == runner._epoch_max_iters
         else:
-            if runner.inner_iter + 1 == len(runner.data_loader):
-                import ipdb
-                ipdb.set_trace()
             return runner.inner_iter + 1 == len(runner.data_loader)

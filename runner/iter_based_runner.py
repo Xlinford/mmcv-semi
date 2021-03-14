@@ -37,8 +37,6 @@ class IterLoader:
             data = next(self.iter_loader)
 
         except StopIteration:
-            import ipdb
-            ipdb.set_trace()
             self._epoch += 1
             if self._epoch_max_iters is None:
                 if hasattr(self._dataloader.sampler, 'set_epoch'):
